@@ -14,7 +14,7 @@ struct FILE_INFO  //luu cac thong so cua file/thu muc doc tu entry
 
 ostream& operator << (ostream& out, FILE_INFO f);
 
-int ReadDrive_NTFS(LPCWSTR  drive);
+void ReadDrive_NTFS(HANDLE device, BYTE sector[]);
 
 FILE_INFO readEntry(BYTE sector[1024]);
 

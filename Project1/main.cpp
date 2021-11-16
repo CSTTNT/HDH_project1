@@ -5,12 +5,57 @@
 #include "NTFS.h"
 #include "FAT32.h"
 
+int ReadDrive(LPCWSTR  drive) {
+    DWORD bytesRead;
+    HANDLE device = NULL;
+    BYTE boostSector[512];
+    int readPoint = 0;
 
+    device = CreateFile(drive,    // Drive to open
+        GENERIC_READ,           // Access mode
+        FILE_SHARE_READ | FILE_SHARE_WRITE,        // Share Mode
+        NULL,                   // Security Descriptor
+        OPEN_EXISTING,          // How to create
+        0,                      // File attributes
+        NULL);                  // Handle to template
+
+    if (device == INVALID_HANDLE_VALUE) // Open Error
+    {
+        printf("CreateFile: %u\n", GetLastError());
+        return 1;
+    }
+
+    SetFilePointer(device, readPoint, NULL, FILE_BEGIN);//Set a Point to Read
+
+    if (!ReadFile(device, boostSector, 512, &bytesRead, NULL))
+    {
+        printf("ReadFile: %u\n", GetLastError());
+    }
+    else
+    {
+        string format = ReadBytes2Str(boostSector, "5", "2", 8);
+        if (format.find("FAT") != std::string::npos) {
+            cout << "========" << format << "=========";
+            ReadDrive_FAT32(device, boostSector);
+        }
+        else {
+            cout << "======== NTFS =========";
+            ReadDrive_NTFS(device, boostSector);
+        }
+    }
+    CloseHandle(device);
+}
 
 int main()
 {
-    //ReadDrive_FAT32(L"\\\\.\\F:");
-    ReadDrive_NTFS(L"\\\\.\\F:");
+    wstring disk;
+    cout << "Nhap ten o dia(vd: F): ";
+    wcin >> disk;
+    disk = L"\\\\.\\" + disk + L":";
+
+    LPCWSTR device = disk.c_str();
+    ReadDrive(device);
+    return 0;
 }
 
 // Run program: Ctrl + F5 or Debug > Start Without Debugging menu

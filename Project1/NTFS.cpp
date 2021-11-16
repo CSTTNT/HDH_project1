@@ -16,53 +16,23 @@ ostream& operator << (ostream& out, FILE_INFO f) // phu tro xuat TapTin/ThuMuc
     return out;
 }
 
-int ReadDrive_NTFS(LPCWSTR  drive) //doc o dia
+void ReadDrive_NTFS(HANDLE device, BYTE sector[]) //doc o dia
 {
-    DWORD bytesRead;
-    HANDLE device = NULL;
-    BYTE sector[512];
-    int readPoint = 0;
+   
+    cout << "Read Boost Sector Success!\n\n";
+    cout << "- So byte/sector: " << ReadBytes2Int(sector, "0", "B", 2) << endl;
+    int Sc = ReadBytes2Int(sector, "0", "D", 1);
+    cout << "- So sector/cluster: " << Sc << endl;
+    cout << "- Tong so sector: " << ReadBytes2Int(sector, "2", "8", 8) << endl;
+    int cMFT = ReadBytes2Int(sector, "3", "0", 8);
+    cout << "- Cluster bat dau cua MFT: " << cMFT << endl;
+    cout << "- Cluster cua MFT mirror: " << ReadBytes2Int(sector, "3", "8", 8) << endl;
+    /*system("pause");
+    system("cls");*/
 
-    device = CreateFile(drive,    // Drive to open
-        GENERIC_READ,           // Access mode
-        FILE_SHARE_READ | FILE_SHARE_WRITE,        // Share Mode
-        NULL,                   // Security Descriptor
-        OPEN_EXISTING,          // How to create
-        0,                      // File attributes
-        NULL);                  // Handle to template
+    //doc tap tin/thu muc
+    readMFT(device, Sc * cMFT);
 
-    if (device == INVALID_HANDLE_VALUE) // Open Error
-    {
-        printf("CreateFile: %u\n", GetLastError());
-        return 1;
-    }
-
-    SetFilePointer(device, readPoint, NULL, FILE_BEGIN);//Set a Point to Read
-
-    if (!ReadFile(device, sector, 512, &bytesRead, NULL))
-    {
-        printf("ReadFile: %u\n", GetLastError());
-    }
-    else
-    {
-
-        cout << "Read Boost Sector Success!\n\n";
-        cout << "- So byte/sector: " << ReadBytes2Int(sector, "0", "B", 2) << endl;
-        int Sc = ReadBytes2Int(sector, "0", "D", 1);
-        cout << "- So sector/cluster: " << Sc << endl;
-        cout << "- Tong so sector: " << ReadBytes2Int(sector, "2", "8", 8) << endl;
-        int cMFT = ReadBytes2Int(sector, "3", "0", 8);
-        cout << "- Cluster bat dau cua MFT: " << cMFT << endl;
-        cout << "- Cluster cua MFT mirror: " << ReadBytes2Int(sector, "3", "8", 8) << endl;
-        /*system("pause");
-        system("cls");*/
-
-        //doc tap tin/thu muc
-        readMFT(device, Sc * cMFT);
-
-
-    }
-    CloseHandle(device);
 }
 
 FILE_INFO readEntry(BYTE sector[1024]) // Lay cac thong so can thiet cua entry

@@ -21,7 +21,7 @@ int hex2dec(const char num[]);
 int ReadBytes2Int(byte sector[], const char row[], const char col[], int num);
 
 // Read bytes and convert 2 string
-void ReadBytes2Str(BYTE sector[], const char row[], const char col[], int num);
+string ReadBytes2Str(BYTE sector[], const char row[], const char col[], int num);
 
 string Bytes2Str(BYTE sector[], int pos, int num);
 

@@ -34,4 +34,4 @@ void readRDET(HANDLE device, int FATpos, int rdetPos, int SB, int SC, int NF, in
 //Read DATA of .TXT file
 void readData(HANDLE device, vector<int> secArr);
 //Read BoostSector
-int ReadDrive_FAT32(LPCWSTR  drive);
+void ReadDrive_FAT32(HANDLE drive, BYTE boostSector[]);

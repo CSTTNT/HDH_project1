@@ -39,13 +39,14 @@ int ReadBytes2Int(byte sector[], const char row[], const char col[], int num) {
     return dec;
 }
 
-void ReadBytes2Str(BYTE sector[], const char row[], const char col[], int num) {
+string ReadBytes2Str(BYTE sector[], const char row[], const char col[], int num) {
     int col_dec = hex2dec(col);
     int row_dec = hex2dec(row);
+    string result = "";
     for (int i = col_dec; i < col_dec + num; i++) {
-        cout << sector[row_dec * 16 + i];
+        result += sector[row_dec * 16 + i];
     }
-    cout << endl;
+    return result;
 }
 
 string Bytes2Str(BYTE sector[], int pos, int num) {

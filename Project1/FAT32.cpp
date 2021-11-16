@@ -1,65 +1,35 @@
 #include "FAT32.h"
 
 
-int ReadDrive_FAT32(LPCWSTR  drive)
+void ReadDrive_FAT32(HANDLE device, BYTE boostSector[])
 {
-    DWORD bytesRead;
-    HANDLE device = NULL;
-    BYTE boostSector[512];
     int readPoint = 0;
 
-    device = CreateFile(drive,    // Drive to open
-        GENERIC_READ,           // Access mode
-        FILE_SHARE_READ | FILE_SHARE_WRITE,        // Share Mode
-        NULL,                   // Security Descriptor
-        OPEN_EXISTING,          // How to create
-        0,                      // File attributes
-        NULL);                  // Handle to template
+    int BS = ReadBytes2Int(boostSector, "0", "B", 2);
+    cout << "So byte cho 1 sector: " << BS << endl;
+    int SC = ReadBytes2Int(boostSector, "0", "D", 1);
+    cout << "So sector cho 1 cluster: " << SC << endl;
+    int SB = ReadBytes2Int(boostSector, "0", "E", 2);
+    cout << "So sector vung Bootsector: " << SB << endl;
+    int NF = ReadBytes2Int(boostSector, "1", "0", 1);
+    cout << "So bang FAT: " << NF << endl;
+    int SF = ReadBytes2Int(boostSector, "2", "4", 4);
+    cout << "So sector 1 bang FAT: " << SF << endl;
+    int SV = ReadBytes2Int(boostSector, "2", "0", 4);
+    cout << "Tong so sector trong Volume: " << SV << endl;
+    int firstFAT = SB;
+    cout << "Sector dau tien cua bang FAT1: " << firstFAT << endl;
+    int firstData = SB + SF * NF;
+    cout << "Sector dau tien cua DATA: " << firstData << endl;
+    int ClusRDET = ReadBytes2Int(boostSector, "2", "C", 4);
+    cout << "Cluster dau tien cua RDET: " << ClusRDET << endl;
+    int RDETpos = firstData + (ClusRDET - 2) * SC;
+    cout << "Sector dau tien cua RDET: " << RDETpos << endl;
+    system("pause");
+    system("cls");
 
-    if (device == INVALID_HANDLE_VALUE) // Open Error
-    {
-        printf("CreateFile: %u\n", GetLastError());
-        return 1;
-    }
+    readRDET(device, SB, RDETpos, SB, SC, NF, SF);
 
-    SetFilePointer(device, readPoint, NULL, FILE_BEGIN);//Set a Point to Read
-
-    if (!ReadFile(device, boostSector, 512, &bytesRead, NULL))
-    {
-        printf("ReadFile: %u\n", GetLastError());
-    }
-    else
-    {
-        //Read Boost sector to find SV,SC,SB,NF,SF,....
-        cout << "Read Boost Sector Success!\n\n";
-        cout << "Loai FAT: ";
-        ReadBytes2Str(boostSector, "5", "2", 8);
-        int BS = ReadBytes2Int(boostSector, "0", "B", 2);
-        cout << "So byte cho 1 sector: " << BS << endl;
-        int SC = ReadBytes2Int(boostSector, "0", "D", 1);
-        cout << "So sector cho 1 cluster: " << SC << endl;
-        int SB = ReadBytes2Int(boostSector, "0", "E", 2);
-        cout << "So sector vung Bootsector: " << SB << endl;
-        int NF = ReadBytes2Int(boostSector, "1", "0", 1);
-        cout << "So bang FAT: " << NF << endl;
-        int SF = ReadBytes2Int(boostSector, "2", "4", 4);
-        cout << "So sector 1 bang FAT: " << SF << endl;
-        int SV = ReadBytes2Int(boostSector, "2", "0", 4);
-        cout << "Tong so sector trong Volume: " << SV << endl;
-        int firstFAT = SB;
-        cout << "Sector dau tien cua bang FAT1: " << firstFAT << endl;
-        int firstData = SB + SF * NF;
-        cout << "Sector dau tien cua DATA: " << firstData << endl;
-        int ClusRDET = ReadBytes2Int(boostSector, "2", "C", 4);
-        cout << "Cluster dau tien cua RDET: " << ClusRDET << endl;
-        int RDETpos = firstData + (ClusRDET - 2) * SC;
-        cout << "Sector dau tien cua RDET: " << RDETpos << endl;
-        system("pause");
-        system("cls");
-
-        readRDET(device, SB, RDETpos, SB, SC, NF, SF);
-    }
-    CloseHandle(device);
 }
 
 void readData(HANDLE device, vector<int> secArr) {
@@ -73,6 +43,7 @@ void readData(HANDLE device, vector<int> secArr) {
     }
     else
     {
+        cout << "Noi dung tap tin: " << endl;
         for (int i = 0; i < secArr.size(); i++) {
             SetFilePointer(device, (512 * secArr[i]), NULL, FILE_BEGIN);
 
@@ -80,7 +51,7 @@ void readData(HANDLE device, vector<int> secArr) {
                 printf("\nReadFile: %u\n", GetLastError());
             }
             else {
-                cout << "Noi dung tap tin: " << endl;
+                
                 int i = 0;
                 while (DataSector[i] != 0x00) {
                     cout << DataSector[i++];
