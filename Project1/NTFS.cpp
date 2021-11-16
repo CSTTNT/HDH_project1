@@ -18,7 +18,6 @@ ostream& operator << (ostream& out, FILE_INFO f) // phu tro xuat TapTin/ThuMuc
 
 void ReadDrive_NTFS(HANDLE device, BYTE sector[]) //doc o dia
 {
-   
     cout << "Read Boost Sector Success!\n\n";
     cout << "- So byte/sector: " << ReadBytes2Int(sector, "0", "B", 2) << endl;
     int Sc = ReadBytes2Int(sector, "0", "D", 1);
@@ -32,7 +31,6 @@ void ReadDrive_NTFS(HANDLE device, BYTE sector[]) //doc o dia
 
     //doc tap tin/thu muc
     readMFT(device, Sc * cMFT);
-
 }
 
 FILE_INFO readEntry(BYTE sector[1024]) // Lay cac thong so can thiet cua entry
