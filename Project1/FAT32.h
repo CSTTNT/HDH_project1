@@ -31,8 +31,8 @@ void findCluster(HANDLE device, int FATpos, vector<int>& clusArr, int firstClus)
 // find Sectors of entry based on FAT
 void findSector(vector<int> clusArr, vector<int>& secArr, int SC, int SB, int NF, int SF);
 // Read RDET
-void readRDET(HANDLE device, int FATpos, int rdetPos, int SB, int SC, int NF, int SF);
+void readRDET(HANDLE device, int FATpos, int rdetPos, int SB, int SC, int NF, int SF, int n_setw);
 //Read DATA of .TXT file
-void readData(HANDLE device, vector<int> secArr);
+void readData(HANDLE device, vector<int> secArr, int n_setw);
 //Read BoostSector
 void ReadDrive_FAT32(HANDLE drive, BYTE boostSector[]);

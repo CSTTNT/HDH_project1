@@ -27,11 +27,11 @@ void ReadDrive_FAT32(HANDLE device, BYTE boostSector[])
     system("pause");
     system("cls");
 
-    readRDET(device, SB, RDETpos, SB, SC, NF, SF);
+    readRDET(device, SB, RDETpos, SB, SC, NF, SF, 0);
 
 }
 
-void readData(HANDLE device, vector<int> secArr) {
+void readData(HANDLE device, vector<int> secArr, int n_setw) {
     DWORD bytesDATARead;
     BYTE DataSector[512];
     memset(&DataSector, 0, 512);
@@ -42,8 +42,7 @@ void readData(HANDLE device, vector<int> secArr) {
     }
     else
     {
-        
-        cout << "Noi dung tap tin: " << endl;
+
         for (int i = 0; i < secArr.size(); i++) {
             SetFilePointer(device, (512 * secArr[i]), NULL, FILE_BEGIN);
 
@@ -58,6 +57,7 @@ void readData(HANDLE device, vector<int> secArr) {
                 
                 int scnt = strlen((char*)DataSector);
                 if (scnt > 0) {
+                    cout << "Noi dung tap tin: ";
                     wchar_t* data = new wchar_t[scnt + 1];
                     Convert_String(DataSector, data, scnt);
                     _setmode(_fileno(stdout), _O_U16TEXT);
@@ -68,15 +68,16 @@ void readData(HANDLE device, vector<int> secArr) {
             }
         }
     }
+    cout << endl;
 }
 
-void readRDET(HANDLE device, int FATpos, int rdetPos, int SB, int SC, int NF, int SF) {
+void readRDET(HANDLE device, int FATpos, int rdetPos, int SB, int SC, int NF, int SF, int n_setw) {
 
     DWORD BytesRDETRead;
     Entry entry;
     BYTE bytesEntry[512];
     memset(&bytesEntry, 0, 512);
-
+    cout << endl;
     if (device != NULL) {
         SetFilePointer(device, (512 * rdetPos), NULL, FILE_BEGIN);
         bool isEmpty = false;
@@ -117,6 +118,7 @@ void readRDET(HANDLE device, int FATpos, int rdetPos, int SB, int SC, int NF, in
                             continue;
                         }
                         //check entry is sub entry
+                        cout << setw(n_setw) << left << " ";
                         if (entry.Attributes == 0x0F) {
                             // if sub entry, push to stack
                             stack<Entry> subEntries;
@@ -130,7 +132,7 @@ void readRDET(HANDLE device, int FATpos, int rdetPos, int SB, int SC, int NF, in
                                 memcpy(&entry, pEntry, 32);
                             };
                             // After find sub entry, print name of them
-                            cout << "\n\nFile name: ";
+                            cout << "File name: ";
                             while (!subEntries.empty()) {
                                 Entry subEntry = subEntries.top();
                                 subEntries.pop();
@@ -140,12 +142,13 @@ void readRDET(HANDLE device, int FATpos, int rdetPos, int SB, int SC, int NF, in
 
                         //Main entry name
                         if (!hasSubEntry) {
-                            cout << "\n\nFile Name: ";
+                            cout << "File Name: ";
                             printName(entry, 0);
                         }
                         cout << endl;
 
                         // attribute of entry (1 bytes in 0B)
+                        cout << setw(n_setw) << left << " ";
                         if (entry.Attributes == 0x01)
                             cout << "File Attribute: Read Only File\n";
                         else if (entry.Attributes == 0x02)
@@ -163,44 +166,51 @@ void readRDET(HANDLE device, int FATpos, int rdetPos, int SB, int SC, int NF, in
                         int upCluster = entry.startCluster[1] << 8 | entry.startCluster[0];
                         int  downCluster = entry.moreStartCluster[1] << 8 | entry.moreStartCluster[0];
                         int startCluster = upCluster + downCluster;
+                        cout << setw(n_setw) << left << " ";
                         cout << "Start Cluster: " << startCluster << endl;
                         // find clusters
                         vector<int> clusArray;
 
                         findCluster(device, SB, clusArray, startCluster);
+                        cout << setw(n_setw) << left << " ";
                         cout << "In Cluster: ";
                         for (int i = 0; i < clusArray.size(); i++) {
                             cout << clusArray[i] << " ";
                         }
+                        cout << endl;
                         // find sector
-                        cout << "\nIn Sector: ";
+                        cout << setw(n_setw) << left << " ";
+                        cout << "In Sector: ";
                         vector<int> secArray;
                         findSector(clusArray, secArray, SC, SB, NF, SF);
                         for (int i = 0; i < secArray.size(); i++) {
                             cout << secArray[i] << " ";
                         }
+                        cout << endl;
                         // Size of file
                         int size = 0;
                         for (int i = 3; i >= 0; i--)
                             size = size << 8 | entry.sizeofFile[i];
-                        cout << "\nSize: " << size << " bytes\n";
+                        cout << setw(n_setw) << left << " ";
+                        cout << "Size: " << size << " bytes\n";
                         //if entry is .txt file, read data
                         if (entry.extension[0] == 'T' && entry.extension[1] == 'X' && entry.extension[2] == 'T') {
-                            readData(device, secArray);
+                            cout << setw(n_setw) << left << " ";
+                            readData(device, secArray, n_setw);
                         }
                         else if (entry.Attributes != 0x10) {
+                            cout << setw(n_setw) << left << " ";
                             cout << "-> Dung phan mem tuong thich de doc noi dung!" << endl;
                         }
                         if (entry.Attributes == 0x10) {
-                            readRDET(device, SB, secArray[0], SB, SC, NF, SF);
+                            readRDET(device, SB, secArray[0], SB, SC, NF, SF,n_setw+5);
                         }
                         //update pEntry
                         pEntry += 32;
-
                         cout << endl;
-                        cout << "--------------------------------------------------------------------------------------" << endl;
-                        cout << endl;
+                        cout << "---------------------------------------------\n";
                     }
+                    //cout << endl;
                 }
             }
             if (isEmpty)
