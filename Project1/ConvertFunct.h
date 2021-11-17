@@ -13,7 +13,7 @@
 using namespace std;
 
 
-
+string dec2hex(int n);
 
 int hex2dec(const char num[]);
 

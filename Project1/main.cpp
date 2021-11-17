@@ -35,11 +35,11 @@ int ReadDrive(LPCWSTR  drive) {
     {
         string format = ReadBytes2Str(boostSector, "5", "2", 8);
         if (format.find("FAT") != std::string::npos) {
-            cout << "========" << format << "=========";
+            cout << "========" << format << "=========\n";
             ReadDrive_FAT32(device, boostSector);
         }
         else {
-            cout << "======== NTFS =========";
+            cout << "======== NTFS =========\n";
             ReadDrive_NTFS(device, boostSector);
         }
     }

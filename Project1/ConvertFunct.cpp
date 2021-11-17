@@ -1,5 +1,30 @@
 #include "ConvertFunct.h"
 
+
+string dec2hex(int n)
+{
+    char c;
+    string result;
+    int i = 0;
+    while (n != 0) {
+        int temp = 0;
+        temp = n % 16;
+        if (temp < 10) {
+            c = temp + 48;
+            result += c;
+            i++;
+        }
+        else {
+            c = temp + 55;
+            result += c;
+            i++;
+        }
+        n = n / 16;
+    }
+    reverse(result.begin(), result.end());
+    return result;
+}
+
 int hex2dec(const char num[]) {
     int len = strlen(num);
     int base = 1;
