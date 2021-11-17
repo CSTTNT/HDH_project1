@@ -1,5 +1,6 @@
 #include "FAT32.h"
-
+#include <io.h>
+#include <fcntl.h>
 
 void ReadDrive_FAT32(HANDLE device, BYTE boostSector[])
 {
@@ -43,6 +44,7 @@ void readData(HANDLE device, vector<int> secArr) {
     }
     else
     {
+        
         cout << "Noi dung tap tin: " << endl;
         for (int i = 0; i < secArr.size(); i++) {
             SetFilePointer(device, (512 * secArr[i]), NULL, FILE_BEGIN);
@@ -51,11 +53,19 @@ void readData(HANDLE device, vector<int> secArr) {
                 printf("\nReadFile: %u\n", GetLastError());
             }
             else {
-                
                 int i = 0;
-                while (DataSector[i] != 0x00) {
+                /*while (DataSector[i] != 0x00) {
                     cout << DataSector[i++];
-
+                }*/
+                
+                int scnt = strlen((char*)DataSector);
+                if (scnt > 0) {
+                    wchar_t* data = new wchar_t[scnt + 1];
+                    Convert_String(DataSector, data, scnt);
+                    _setmode(_fileno(stdout), _O_U16TEXT);
+                    wcout << data;
+                    delete[] data;
+                    _setmode(_fileno(stdout), _O_TEXT);
                 }
             }
         }

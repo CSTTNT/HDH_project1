@@ -27,3 +27,5 @@ string Bytes2Str(BYTE sector[], int pos, int num);
 
 int Byte2Int(BYTE sector[], int pos, int num);
 
+//convert byte to unicode encoding utf-8
+void Convert_String(BYTE* string_in, wchar_t* string_out, int scnt);
