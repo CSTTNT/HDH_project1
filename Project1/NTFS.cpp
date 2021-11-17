@@ -33,17 +33,18 @@ FILE_INFO readEntry(BYTE sector[1024])
     int sizeOBJ = Byte2Int(sector, posOBJ + 4, 4);
     int posDataDATA = Byte2Int(sector, posOBJ + sizeOBJ + 20, 2);
     int sizeDataDATA = Byte2Int(sector, posOBJ + sizeOBJ + 16, 4);
-    BYTE* data = new BYTE[sizeDataDATA + 1];
+    int n = 2 * (sizeDataDATA + 1);
+    BYTE* data = new BYTE[n];
     int i = 0;
-    while (i<sizeDataDATA) {
+    while (i<n) {
         data[i] = sector[posOBJ + sizeOBJ + posDataDATA];
         posDataDATA++;
         i++;
     }
     f_info.sizeData = sizeDataDATA;
-    
-    Convert_String(data, f_info.data, sizeDataDATA);
+    Convert_String(data, f_info.data, n);
     delete[] data;
+
     return f_info;
 }
 
