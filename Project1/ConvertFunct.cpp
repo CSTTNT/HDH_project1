@@ -101,3 +101,34 @@ int Byte2Int(BYTE sector[], int pos, int num) {
     }
     return dec;
 }
+
+void Convert_String(BYTE* string_in, wchar_t* string_out, int scnt)
+{
+    int i;
+    wchar_t unicode;
+    i = 0;
+    while (i < scnt)
+    {
+        if (0xc2 <= string_in[i] && string_in[i] <= 0xe0 && 0x80 <= string_in[i + 1] && string_in[i + 1] <= 0xbf)
+        {
+            // 2byte
+            unicode = (string_in[i++] & 0x3f) << 6;
+            unicode += (string_in[i++] & 0x3f);
+            *string_out = unicode;
+        }
+        else  if (0xe0 <= string_in[i] && string_in[i] <= 0xef && 0x80 <= string_in[i + 1] && string_in[i + 1] <= 0xbf && 0x80 <= string_in[i + 2] && string_in[i + 2] <= 0xbf)
+        {
+            // 3byte
+            unicode = (string_in[i++] & 0x0f) << 12;
+            unicode += ((string_in[i++] & 0x3f) << 6);
+            unicode += (string_in[i++] & 0x3f);
+            *string_out = unicode;
+        }
+        else // 1byte
+        {
+            *string_out = string_in[i++];
+        }
+        string_out++;
+    }
+    *string_out = 0; // ket thuc chuoi
+}
