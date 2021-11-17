@@ -1,5 +1,7 @@
 #pragma once
 #include "ConvertFunct.h"
+#include <io.h>
+#include <fcntl.h>
 
 struct FILE_INFO  //luu cac thong so cua file/thu muc doc tu entry
 {
@@ -8,7 +10,7 @@ struct FILE_INFO  //luu cac thong so cua file/thu muc doc tu entry
     int IDparent;
     int attribute;
     string name;
-    string data;
+    wchar_t* data;
     int sizeData;
 };
 

@@ -1,6 +1,7 @@
 #pragma once
 #include "ConvertFunct.h"
-
+#include <io.h>
+#include <fcntl.h>
 
 struct Entry {
     // Main entry

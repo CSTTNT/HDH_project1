@@ -1,6 +1,4 @@
 #include "FAT32.h"
-#include <io.h>
-#include <fcntl.h>
 
 void ReadDrive_FAT32(HANDLE device, BYTE boostSector[])
 {

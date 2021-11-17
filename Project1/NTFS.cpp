@@ -33,18 +33,27 @@ FILE_INFO readEntry(BYTE sector[1024])
     int sizeOBJ = Byte2Int(sector, posOBJ + 4, 4);
     int posDataDATA = Byte2Int(sector, posOBJ + sizeOBJ + 20, 2);
     int sizeDataDATA = Byte2Int(sector, posOBJ + sizeOBJ + 16, 4);
-    int n = 2 * (sizeDataDATA + 1);
-    BYTE* data = new BYTE[n];
-    int i = 0;
-    while (i<n) {
-        data[i] = sector[posOBJ + sizeOBJ + posDataDATA];
-        posDataDATA++;
-        i++;
+    //int n = 2 * (sizeDataDATA + 1);
+    
+    
+    
+    int len = f_info.name.length();
+    //xuat data neu file txt
+    if (((int)f_info.name[len - 2]) == 116 && ((int)f_info.name[len - 4]) == 120 && ((int)f_info.name[len - 6]) == 116) {
+        BYTE* data = new BYTE[sizeDataDATA + 1];
+        f_info.data = new wchar_t[sizeDataDATA + 1];
+        int i = 0;
+        while (i < sizeDataDATA) {
+            data[i] = sector[posOBJ + sizeOBJ + posDataDATA];
+            posDataDATA++;
+            i++;
+        }
+
+        Convert_String(data, f_info.data, sizeDataDATA);
+        delete[] data;
+        
     }
     f_info.sizeData = sizeDataDATA;
-    Convert_String(data, f_info.data, n);
-    delete[] data;
-
     return f_info;
 }
 
@@ -106,6 +115,7 @@ int readMFT(HANDLE device, int Sc, int cMFT)  // doc bang MFT (duyet cac entry c
             int attr = readAttribute(sectorMFTentry);
             if (attr == 268435456 || attr == 32) // 0x00000010 or 0x20000000  =>  Tap Tin or Thu muc
             {
+
                 FILE_INFO f = readEntry(sectorMFTentry);
                 f.indexSector += to_string(posMFT + i) + ", " + to_string(posMFT + i + 1);
                 f.attribute = attr;
@@ -120,12 +130,8 @@ int readMFT(HANDLE device, int Sc, int cMFT)  // doc bang MFT (duyet cac entry c
 
 ostream& operator << (ostream& out, FILE_INFO f) // phu tro xuat TapTin/ThuMuc
 {
-    int i = f.name.length();
-    //xuat data neu file txt
-    if (((int)f.name[i - 2]) == 116 && ((int)f.name[i - 4]) == 120 && ((int)f.name[i - 6]) == 116) {
-        out << f.name << " (sector: " << f.indexSector << " ; Noi dung: "; wcout << f.data; out << " ; Kich thuoc: " << f.sizeData << " Byte)\n";
-    }
-    else if (f.attribute == 268435456) // thu muc
+    
+    if (f.attribute == 268435456) // thu muc
         out << f.name << " (sector: " << f.indexSector << ")\n";
     else
         out << f.name << " (sector: " << f.indexSector << " ; Kich thuoc: " << f.sizeData << " Byte)" << " => Hay mo tap tin bang ung dung tuong thich\n";
@@ -134,7 +140,7 @@ ostream& operator << (ostream& out, FILE_INFO f) // phu tro xuat TapTin/ThuMuc
 
 void print_RootFolder(queue<FILE_INFO>& src, int IDparent, int n_setw) //in cay thu muc goc
 {
-    _setmode(_fileno(stdout), _O_U16TEXT);
+    
     int k = src.size();
     while (k) {
         FILE_INFO temp = src.front();
@@ -149,13 +155,29 @@ void print_RootFolder(queue<FILE_INFO>& src, int IDparent, int n_setw) //in cay 
             }
             else {
                 src.pop();
-                cout << setw(n_setw) << left << " " << "- " << temp;
+                
+                int i = temp.name.length();
+                //xuat data neu file txt
+                if (((int)temp.name[i - 2]) == 116 && ((int)temp.name[i - 4]) == 120 && ((int)temp.name[i - 6]) == 116) {
+                    cout << setw(n_setw) << left << " " << "- ";
+                    cout << temp.name << " (sector: " << temp.indexSector << " ; Kich thuoc: " << temp.sizeData << " Byte)\n";
+                    cout << setw(n_setw) << left << "   ";
+                    cout << "Noi dung: "; 
+                    _setmode(_fileno(stdout), _O_U16TEXT);
+                    wcout << temp.data;
+                    _setmode(_fileno(stdout), _O_TEXT);
+                    cout << endl;
+                    delete[] temp.data;
+                }
+                else {
+                    cout << setw(n_setw) << left << " " << "- " << temp;
+                }
             }
         }
         src.push(src.front());
         src.pop();
         k--;
     }
-    _setmode(_fileno(stdout), _O_TEXT);
+    
 }
 
