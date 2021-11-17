@@ -48,6 +48,7 @@ int ReadDrive(LPCWSTR  drive) {
 
 int main()
 {
+
     wstring disk;
     cout << "Nhap ten o dia(vd: F): ";
     wcin >> disk;

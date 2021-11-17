@@ -1,6 +1,6 @@
 #include "FAT32.h"
-#include <fcntl.h>
 #include <io.h>
+#include <fcntl.h>
 
 void ReadDrive_FAT32(HANDLE device, BYTE boostSector[])
 {
@@ -65,6 +65,7 @@ void readData(HANDLE device, vector<int> secArr) {
                     _setmode(_fileno(stdout), _O_U16TEXT);
                     wcout << data;
                     delete[] data;
+                    _setmode(_fileno(stdout), _O_TEXT);
                 }
             }
         }
